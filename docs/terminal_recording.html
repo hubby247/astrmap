@@ -141,49 +141,78 @@
 
         // The simulated lines
         const lines = [
-            `<span class="prompt">hubby247@dev-machine:~/projects/monolith-api$</span> <span class="cmd">astrmap scan .</span>`,
-            `🗺️  <span class="highlight">AstrMap</span> initializing...`,
-            `🔍 Discovered 14,832 target files across Go, TS, Python, HTML, CSS.`,
-            `📂 Generating AST Level 0, 1, 2, 3 Maps...`,
-            `<span class="success">✅ Mapping complete in 412.33ms.</span> <span class="timing">(Parsed 2.1M lines of code)</span>`,
-            `<br>`,
-            `✨ Reduced entire architecture context to:`,
-            `   - _level_1.map.txt <span class="timing">(24 KB)</span>`,
-            `   - _level_2.map.txt <span class="timing">(4 KB)</span>`,
-            `   - _level_3.map.txt <span class="highlight">(82 KB) -> Drag into Claude/ChatGPT!</span>`,
-            `<br><span class="prompt">hubby247@dev-machine:~/projects/monolith-api$</span> <span class="cursor"></span>`
+            { text: `astrmap scan .`, isCmd: true },
+            { text: `<br>🗺️  <span class="highlight">AstrMap</span> initializing...`, isCmd: false },
+            { text: `🔍 Discovered 14,832 target files across Go, TS, Python, HTML, CSS.`, isCmd: false },
+            { text: `📂 Generating AST Level 0, 1, 2, 3 Maps...<br>`, isCmd: false },
+            { text: `<span class="success">✅ Mapping complete in 412.33ms.</span> <span class="timing">(Parsed 2.1M lines of code)</span>`, isCmd: false },
+            { text: `<br>✨ Reduced entire architecture context to:`, isCmd: false },
+            { text: `   - _level_1.map.txt <span class="timing">(24 KB)</span>`, isCmd: false },
+            { text: `   - _level_2.map.txt <span class="timing">(4 KB)</span>`, isCmd: false },
+            { text: `   - _level_3.map.txt <span class="highlight">(82 KB) -> Drag into Claude/ChatGPT!</span><br><br>`, isCmd: false },
+            { text: `<span class="prompt">hubby247@dev-machine:~/projects/monolith-api$</span> <span class="cursor"></span>`, isCmd: false }
         ];
 
-        const startAnimation = () => {
-            let delay = 1000; // Wait 1 full second before starting so recording catches it
+        const typeWriter = (text, element, speed, callback) => {
+            let i = 0;
+            element.innerHTML = "";
 
-            // 1. Initial Prompt
-            setTimeout(() => {
+            const type = () => {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    if (callback) callback();
+                }
+            };
+            type();
+        };
+
+        const startAnimation = () => {
+            let currentLine = 0;
+
+            const processNextLine = () => {
+                if (currentLine >= lines.length) return;
+
+                const lineData = lines[currentLine];
                 const div = document.createElement('div');
                 div.className = 'line';
-                div.innerHTML = lines[0];
                 term.appendChild(div);
-            }, delay);
 
-            delay += 1500; // Wait 1.5 seconds so user reads the command
+                if (lineData.isCmd) {
+                    // Initial prompt
+                    div.innerHTML = `<span class="prompt">hubby247@dev-machine:~/projects/monolith-api$</span> <span class="cmd">`;
+                    const cmdSpan = document.createElement('span');
+                    cmdSpan.className = 'cmd';
+                    div.appendChild(cmdSpan);
 
-            // 2. Slow down the fast execution to guarantee the video encoder catches it
-            for (let i = 1; i < lines.length; i++) {
-                // Give each line 300ms so it looks fast but has literal frames
-                let stepDelay = 300;
+                    typeWriter(lineData.text, cmdSpan, 80, () => {
+                        currentLine++;
+                        setTimeout(processNextLine, 500);
+                    });
+                } else {
+                    div.innerHTML = lineData.text; // Just dump the pre-formatted line
+                    currentLine++;
 
-                // The final results should pop up together
-                if (i > 5) stepDelay = 100;
+                    // If it's the result lines, dump them fast, else wait a bit
+                    let waitTime = 150 + Math.random() * 100;
+                    if (currentLine > 5) waitTime = 50;
 
-                delay += stepDelay;
+                    setTimeout(processNextLine, waitTime);
+                }
+            };
 
-                setTimeout(() => {
-                    const outDiv = document.createElement('div');
-                    outDiv.className = 'line';
-                    outDiv.innerHTML = lines[i];
-                    term.appendChild(outDiv);
-                }, delay);
-            }
+            // Start with empty prompt
+            const initDiv = document.createElement('div');
+            initDiv.className = 'line';
+            initDiv.innerHTML = `<span class="prompt">hubby247@dev-machine:~/projects/monolith-api$</span> <span class="cursor" style="opacity: 0.5;"></span>`;
+            term.appendChild(initDiv);
+
+            setTimeout(() => {
+                term.removeChild(initDiv);
+                processNextLine();
+            }, 1500);
         };
 
         window.onload = startAnimation;
