@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Recording</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .window {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            width: 800px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: #161b22;
+            padding: 10px;
+            border-bottom: 1px solid #30363d;
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            gap: 8px;
+        }
+
+        .circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .red {
+            background-color: #ff5f56;
+        }
+
+        .yellow {
+            background-color: #ffbd2e;
+        }
+
+        .green {
+            background-color: #27c93f;
+        }
+
+        .content {
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: hidden;
+            font-size: 16px;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .line {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.1s forwards;
+            white-space: pre-wrap;
+        }
+
+        .prompt {
+            color: #3fb950;
+            font-weight: bold;
+        }
+
+        .cmd {
+            color: #f2cc60;
+        }
+
+        .timing {
+            color: #8b949e;
+            float: right;
+        }
+
+        .success {
+            color: #3fb950;
+        }
+
+        .highlight {
+            color: #58a6ff;
+            font-weight: bold;
+        }
+
+        .tree {
+            color: #8b949e;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 18px;
+            background-color: #c9d1d9;
+            vertical-align: middle;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="window">
+        <div class="header">
+            <div class="circle red"></div>
+            <div class="circle yellow"></div>
+            <div class="circle green"></div>
+        </div>
+        <div class="content" id="terminal">
+        </div>
+    </div>
+
+    <script>
+        const term = document.getElementById('terminal');
+
+        // The simulated lines
+        const lines = [
+            `<span class="prompt">hubby247@dev-machine:~/projects/monolith-api$</span> <span class="cmd">astrmap scan .</span>`,
+            `🗺️  <span class="highlight">AstrMap</span> initializing...`,
+            `🔍 Discovered 14,832 target files across Go, TS, Python, HTML, CSS.`,
+            `📂 Generating AST Level 0, 1, 2, 3 Maps...`,
+            `<span class="success">✅ Mapping complete in 412.33ms.</span> <span class="timing">(Parsed 2.1M lines of code)</span>`,
+            `<br>`,
+            `✨ Reduced entire architecture context to:`,
+            `   - _level_1.map.txt <span class="timing">(24 KB)</span>`,
+            `   - _level_2.map.txt <span class="timing">(4 KB)</span>`,
+            `   - _level_3.map.txt <span class="highlight">(82 KB) -> Drag into Claude/ChatGPT!</span>`,
+            `<br><span class="prompt">hubby247@dev-machine:~/projects/monolith-api$</span> <span class="cursor"></span>`
+        ];
+
+        const startAnimation = () => {
+            let delay = 500;
+
+            // 1. Initial Prompt
+            setTimeout(() => {
+                const div = document.createElement('div');
+                div.className = 'line';
+                div.innerHTML = lines[0];
+                term.appendChild(div);
+            }, delay);
+
+            delay += 600;
+
+            // Fast execution simulation
+            for (let i = 1; i < lines.length; i++) {
+                setTimeout(() => {
+                    const outDiv = document.createElement('div');
+                    outDiv.className = 'line';
+                    outDiv.innerHTML = lines[i];
+                    term.appendChild(outDiv);
+                }, delay + (i * 150)); // Fast output
+            }
+        };
+
+        window.onload = startAnimation;
+    </script>
+</body>
+
+</html>
