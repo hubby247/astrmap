@@ -155,7 +155,7 @@
         ];
 
         const startAnimation = () => {
-            let delay = 500;
+            let delay = 1000; // Wait 1 full second before starting so recording catches it
 
             // 1. Initial Prompt
             setTimeout(() => {
@@ -165,16 +165,24 @@
                 term.appendChild(div);
             }, delay);
 
-            delay += 600;
+            delay += 1500; // Wait 1.5 seconds so user reads the command
 
-            // Fast execution simulation
+            // 2. Slow down the fast execution to guarantee the video encoder catches it
             for (let i = 1; i < lines.length; i++) {
+                // Give each line 300ms so it looks fast but has literal frames
+                let stepDelay = 300;
+
+                // The final results should pop up together
+                if (i > 5) stepDelay = 100;
+
+                delay += stepDelay;
+
                 setTimeout(() => {
                     const outDiv = document.createElement('div');
                     outDiv.className = 'line';
                     outDiv.innerHTML = lines[i];
                     term.appendChild(outDiv);
-                }, delay + (i * 150)); // Fast output
+                }, delay);
             }
         };
 
