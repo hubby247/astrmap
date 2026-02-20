@@ -17,6 +17,19 @@
             justify-content: center;
             height: 100vh;
             overflow: hidden;
+            animation: forceRepaint 0.05s infinite alternate;
+        }
+
+        @keyframes forceRepaint {
+            from {
+                background-color: #0d1117;
+            }
+
+            to {
+                background-color: #0e1219;
+            }
+
+            /* Imperceptible shift to force 60fps recording */
         }
 
         .window {
@@ -67,9 +80,7 @@
         }
 
         .line {
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeIn 0.1s forwards;
+            opacity: 1;
             white-space: pre-wrap;
         }
 
@@ -94,17 +105,6 @@
         .highlight {
             color: #58a6ff;
             font-weight: bold;
-        }
-
-        .tree {
-            color: #8b949e;
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .cursor {
@@ -139,7 +139,6 @@
     <script>
         const term = document.getElementById('terminal');
 
-        // The simulated lines
         const lines = [
             { text: `astrmap scan .`, isCmd: true },
             { text: `<br>🗺️  <span class="highlight">AstrMap</span> initializing...`, isCmd: false },
@@ -156,7 +155,6 @@
         const typeWriter = (text, element, speed, callback) => {
             let i = 0;
             element.innerHTML = "";
-
             const type = () => {
                 if (i < text.length) {
                     element.innerHTML += text.charAt(i);
@@ -181,29 +179,24 @@
                 term.appendChild(div);
 
                 if (lineData.isCmd) {
-                    // Initial prompt
                     div.innerHTML = `<span class="prompt">hubby247@dev-machine:~/projects/monolith-api$</span> <span class="cmd">`;
                     const cmdSpan = document.createElement('span');
                     cmdSpan.className = 'cmd';
                     div.appendChild(cmdSpan);
 
-                    typeWriter(lineData.text, cmdSpan, 80, () => {
+                    typeWriter(lineData.text, cmdSpan, 40, () => {
                         currentLine++;
                         setTimeout(processNextLine, 500);
                     });
                 } else {
-                    div.innerHTML = lineData.text; // Just dump the pre-formatted line
+                    div.innerHTML = lineData.text;
                     currentLine++;
-
-                    // If it's the result lines, dump them fast, else wait a bit
-                    let waitTime = 150 + Math.random() * 100;
-                    if (currentLine > 5) waitTime = 50;
-
+                    let waitTime = 100 + Math.random() * 80;
+                    if (currentLine > 5) waitTime = 40;
                     setTimeout(processNextLine, waitTime);
                 }
             };
 
-            // Start with empty prompt
             const initDiv = document.createElement('div');
             initDiv.className = 'line';
             initDiv.innerHTML = `<span class="prompt">hubby247@dev-machine:~/projects/monolith-api$</span> <span class="cursor" style="opacity: 0.5;"></span>`;
@@ -211,8 +204,9 @@
 
             setTimeout(() => {
                 term.removeChild(initDiv);
+                document.body.style.animation = 'forceRepaint 0.05s infinite alternate';
                 processNextLine();
-            }, 1500);
+            }, 1000);
         };
 
         window.onload = startAnimation;
