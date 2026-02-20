@@ -4,7 +4,7 @@
   <p>RAG is a black box that loses context. Sending raw code burns tokens. AstrMap gives your AI agent deterministic, lightning-fast context of your entire codebase by treating structure as pure, parseable text.</p>
 </div>
 
-![AstrMap execution showcase in terminal](docs/astrmap_demo.webp)
+![AstrMap execution showcase in terminal](docs/astrmap_demo_smooth.webp)
 
 ---
 
